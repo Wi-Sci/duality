@@ -43,9 +43,20 @@ def index():
 
 
 @app.route('/add/<time>/<int:value>')
-def add_value(time, value):
+def add(time, value):
     data = json.loads(Misc.query.filter(Misc.id == 1).first().value)
     data[str(time)] = value
+    data = json.dumps(data)
+    Misc.query.filter(Misc.id == 1).first().value = data
+    db.session.commit()
+    response = json.loads(Misc.query.filter(Misc.id == 1).first().value)
+    return jsonify(**response)
+
+
+@app.route('/add_value/<int:value>')
+def add_value(value):
+    data = json.loads(Misc.query.filter(Misc.id == 1).first().value)
+    data[len(data) + 1] = value
     data = json.dumps(data)
     Misc.query.filter(Misc.id == 1).first().value = data
     db.session.commit()
@@ -73,6 +84,7 @@ def wipe():
     }
     Misc.query.filter(Misc.id == 1).first().value = json.dumps(data)
     db.session.commit()
+    return "wiped"
 
 
 app.run(debug=True, host='0.0.0.0', port=8000)
