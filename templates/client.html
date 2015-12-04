@@ -64,6 +64,14 @@
 
 			setTimeout(fetchData, 1000);
 		});
+
+		$('.quickValueBtn').click(function() {
+		    data = $('.quickValueInput').val();
+		    $.ajax({
+                url: "http://localhost:8000/add_value/" + data
+		    });
+		    $('.quickValueInput').val("");
+		});
 	});
 
 	</script>
@@ -81,7 +89,9 @@
 		</div>
 
 		<p>
-			<button class="dataUpdate">Poll for data</button>
+			<button class="dataUpdate waves-effect waves-light btn-large">Poll for data</button>
+			<input class="quickValueInput">
+            <button class="quickValueBtn waves-effect waves-light btn-large">Quick Add</button>
 		</p>
 
 	</div>
