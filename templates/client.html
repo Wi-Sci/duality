@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block head %}
+	<link href="../static/css/examples.css" rel="stylesheet" type="text/css">
+	<script src="../static/js/jquery.flot.js"></script>
+	<script type="text/javascript">
+
+	$(function() {
+
+		var options = {
+			/*lines: {
+				show: true
+			},*/
+			points: {
+				show: true
+			},
+			xaxis: {
+				tickDecimals: 0,
+				tickSize: 1
+			}
+		};
+
+		var data = [];
+
+		$.plot("#placeholder", data, options);
+
+		// Fetch one series, adding to what we already have
+
+		var alreadyFetched = {};
+
+		// Initiate a recurring data update
+
+		$("button.dataUpdate").click(function () {
+
+			data = [];
+			alreadyFetched = {};
+
+			$.plot("#placeholder", data, options);
+
+			function fetchData() {
+
+				function onDataReceived(series) {
+
+					// Load all the data in one pass; if we only got partial
+					// data we could merge it with what we already have.
+
+					data = [ series ];
+					$.plot("#placeholder", data, options);
+				}
+
+				// Normally we call the same URL - a script connected to a
+				// database - but in this case we only have static example
+				// files, so we need to modify the URL.
+
+				$.ajax({
+					url: "jsondata",
+					type: "GET",
+					dataType: "json",
+					success: onDataReceived
+				});
+
+                setTimeout(fetchData, 200);
+			}
+
+			setTimeout(fetchData, 1000);
+		});
+	});
+
+	</script>
+{% endblock %}
+{% block content %}
+
+	<div id="header">
+		<h2>Duality Alpha Test</h2>
+	</div>
+
+	<div id="content">
+
+		<div class="demo-container">
+			<div id="placeholder" class="demo-placeholder"></div>
+		</div>
+
+		<p>
+			<button class="dataUpdate">Poll for data</button>
+		</p>
+
+	</div>
+
+{% endblock %}
