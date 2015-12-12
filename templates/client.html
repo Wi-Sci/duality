@@ -67,9 +67,22 @@
 
 		$('.quickValueBtn').click(function() {
 		    data = $('.quickValueInput').val();
-		    $.ajax({
-                url: "http://localhost:8000/add_value/" + data
-		    });
+
+		    var jsonObject = {
+                "Request": "sensor_data",
+                "ID": {
+                    "sensor_id": 1,
+                    "type": "distance"
+                },
+                "Payload": data
+            };
+
+		    $.ajax("http://localhost:8000/add", {
+				data : JSON.stringify(jsonObject),
+				contentType : 'application/json',
+				type : 'POST',
+			});
+
 		    $('.quickValueInput').val("");
 		});
 	});
