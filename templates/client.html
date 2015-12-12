@@ -6,6 +6,24 @@
 	<script type="text/javascript">
 
 	$(function() {
+        function getSensors () {
+            function onDataReceived(jsonData) {
+                var output = [];
+                for(sensor in jsonData){
+                    output.push('<option value="'+ sensor +'">'+ sensor +'</option>');
+                }
+                $('#sensorSelect').html(output.join(''));
+            }
+
+            $.ajax({
+                url: "differentSensors",
+                type: "GET",
+                dataType: "json",
+                success: onDataReceived
+            });
+        }
+
+        getSensors();
 
 		var options = {
 			/*lines: {
@@ -29,11 +47,16 @@
 		var alreadyFetched = {};
 
 		// Initiate a recurring data update
-
 		$("button.dataUpdate").click(function () {
-
+            var sensor_id = $('#sensorSelect').val();
 			data = [];
 			alreadyFetched = {};
+			stop_calls = false;
+
+            // This runs when clicking to load new sensor data
+			$("button.dataUpdate").click(function () {
+                stop_calls = true;
+            });
 
 			$.plot("#placeholder", data, options);
 
@@ -53,16 +76,17 @@
 				// files, so we need to modify the URL.
 
 				$.ajax({
-					url: "jsondata",
+					url: "jsondata/" + sensor_id,
 					type: "GET",
 					dataType: "json",
 					success: onDataReceived
 				});
-
-                setTimeout(fetchData, 200);
+				if (!stop_calls) {
+                    setTimeout(fetchData, 200);
+                }
 			}
 
-			setTimeout(fetchData, 1000);
+			fetchData();
 		});
 
 		$('.quickValueBtn').click(function() {
@@ -71,7 +95,7 @@
 		    var jsonObject = {
                 "Request": "sensor_data",
                 "ID": {
-                    "sensor_id": 1,
+                    "sensor_id": $('#sensorSelect').val(),
                     "type": "distance"
                 },
                 "Payload": data
@@ -100,12 +124,21 @@
 		<div class="demo-container">
 			<div id="placeholder" class="demo-placeholder"></div>
 		</div>
-
-		<p>
-			<button class="dataUpdate waves-effect waves-light btn-large">Poll for data</button>
-			<input class="quickValueInput">
-            <button class="quickValueBtn waves-effect waves-light btn-large">Quick Add</button>
-		</p>
+        <div class="row">
+            <div class="col l3">
+                <label>Sensor Data:</label>
+                <select class="browser-default" id="sensorSelect">
+                    <option value="" disabled selected>Choose your sensor</option>
+                </select>
+            </div>
+            <div class="col l3">
+                <button class="dataUpdate waves-effect waves-light btn-large">Poll for data</button>
+            </div>
+            <div class="col l6">
+                <input class="quickValueInput">
+                <button class="quickValueBtn waves-effect waves-light btn-large">Quick Add</button>
+            </div>
+        </div>
 
 	</div>
 
